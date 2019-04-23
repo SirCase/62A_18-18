@@ -2,6 +2,7 @@
 #include "vex.h"
 #include <cmath>
 #include "vision.h"
+using namespace vex;
 
 //////////////////////////// robot config /////////////////////////////
 
@@ -27,8 +28,6 @@ vex::gyro Gyro = vex::gyro(Brain.ThreeWirePort.H);
 
 bool firing = false;
 bool pressed = false;
-bool fullspeed = true;
-bool R2pressed = false;
 
 int topTarget = 23; //195 using mid/top? flag as target
 int midTarget = 95; //277 using mid //was 104
@@ -40,11 +39,6 @@ int xTarget2 = 157;
 void drive(double lpower, double rpower) {
     rpower *= 12.0/127;
     lpower *= 12.0/127;
-    
-    if (!fullspeed) {
-        rpower *= 0.5;
-        lpower *= 0.5;
-    }
 
     right1.spin(vex::directionType::fwd, rpower, vex::voltageUnits::volt);
     right2.spin(vex::directionType::fwd, rpower, vex::voltageUnits::volt);
@@ -53,6 +47,16 @@ void drive(double lpower, double rpower) {
     left1.spin(vex::directionType::fwd, lpower, vex::voltageUnits::volt);
     left2.spin(vex::directionType::fwd, lpower, vex::voltageUnits::volt);
     left3.spin(vex::directionType::fwd, lpower, vex::voltageUnits::volt);
+}
+
+void drive2(double lpower, double rpower) {
+    right1.spin(vex::directionType::fwd, rpower, vex::velocityUnits::pct);
+    right2.spin(vex::directionType::fwd, rpower, vex::velocityUnits::pct);
+    right3.spin(vex::directionType::fwd, rpower, vex::velocityUnits::pct);
+   
+    left1.spin(vex::directionType::fwd, lpower, vex::velocityUnits::pct);
+    left2.spin(vex::directionType::fwd, lpower, vex::velocityUnits::pct);
+    left3.spin(vex::directionType::fwd, lpower, vex::velocityUnits::pct);
 }
 
 void intakeControl() {
@@ -104,16 +108,6 @@ int catapultControl() {
     return (0);
 }
 
-void speedControl() {
-    if (!R2pressed && Controller.ButtonR2.pressing()) {
-        R2pressed = true;
-        fullspeed = fullspeed ? false : true;
-    } 
-    if (!Controller.ButtonR2.pressing()) {
-        R2pressed = false;
-    }
-}
-
 //////////////////////////////////////////// auton helper methods /////////////////////////////////////////////
 
 void encoderDrive(double ticks, double pct) {
@@ -126,7 +120,13 @@ void encoderDrive(double ticks, double pct) {
 }
 
 void stopAll() {
-    drive(0,0);
+    left1.stop();
+    left2.stop();
+    left3.stop();
+    right1.stop();
+    right2.stop();
+    right3.stop();
+    intake.stop();
 }
 
 void wait(int msec) {
@@ -141,6 +141,10 @@ void timedDrive(int msec, double speed) {
 
 void turn(double speed) {
     drive(speed, -speed);
+}
+
+void turn2(double speed) {
+  drive2(speed, -speed);
 }
 
 void brakeAll() {
@@ -159,23 +163,24 @@ void gyroTurn(double target) {
     double error = target - Gyro.value(vex::analogUnits::range12bit);
     double totalError = 0;
     
-    double kp = 0.115;
-    double ki = 0.042;
+    double kp = 0.6;
+    double ki = 0;
     
     while (std::abs(error) > 4) {
         error = target - Gyro.value(vex::analogUnits::range12bit);
         totalError += error;
-        if (std::abs(error) > 100) {
+        if (std::abs(error) > 40) {
             totalError = 0;
         }
-        turn(error*kp + totalError*ki);
+        turn2(error*kp + totalError*ki);
+       
     }
     stopAll();
 }
 
 void resetGyro() {
     Gyro.startCalibration();
-    wait(1250);
+    wait(1300);
 }
 
 ///////////////////////////////////////// vision sensor ///////////////////////////////////////////////////
@@ -263,7 +268,6 @@ void defaultUserControl() {
     while(1) { 
         drive(Controller.Axis3.value(), Controller.Axis2.value());
         intakeControl();
-        speedControl();
         vex::task::sleep(10);
     }
 }

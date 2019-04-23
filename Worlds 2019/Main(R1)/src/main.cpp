@@ -13,12 +13,12 @@ void auton() {
   wait(800);
 
   // drive back
-  encoderDrive(2400, 50);
+  encoderDrive(2000, 50);
 
   intake.stop();
 
-  // turn left
-  gyroTurn(-90);
+  // turn right
+  gyroTurn(90);
 
   // turnToFlag();
 
@@ -26,19 +26,23 @@ void auton() {
   firing = true;
   wait(1000);
 
-  // turn right a little bit
-  // turnToFlag();
-  // gyroTurn(5);
+  //turn left to face flag
+  //gyroTurn(-50);
 
-  // drive to low flag
-  //encoderDrive(2850, 50);
-  //timedDrive(600, 50);
+  //drive to flag
+  //encoderDrive(1500, 50);
+
+  //turn right to face flag
+  //gyroTurn(40);
+
+  //drive into flag
+  //timedDrive(1000, 50);
 
   //drive back
-  //encoderDrive(-1000, 50);
+  //encoderDrive(-1500, 50);
 
-  //turn right to face cap
-  //gyroTurn(90);
+  //turn left
+  //gyroTurn(-90);
 
   //drive to flip cap
   //intake.spin(vex::directionType::rev, 100, vex::velocityUnits::pct);
