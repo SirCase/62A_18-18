@@ -164,18 +164,18 @@ void brakeAll() {
 /////////////////////////////////////// gyroscope///////////////////////////////////////////////
 
 void gyroTurn(double target) {
-  target = Gyro.value(vex::analogUnits::range12bit) + target * 10 + target * 12 / 90;
+  target = Gyro.value(vex::analogUnits::range12bit) + target * 10 + target * 40 / 90;
   double error = target - Gyro.value(vex::analogUnits::range12bit);
   double totalError = 0;
 
-  double kp = 0.06;
-  double ki = 0.00;
+  double kp = 0.083;
+  double ki = 0.01;
 
   while (std::abs(error) > 3) {
     vex::task::sleep(10);
     error = target - Gyro.value(vex::analogUnits::range12bit);
     totalError += error;
-    if (std::abs(error) > 40) {
+    if (std::abs(error) > 69) {
       totalError = 0;
     }
     turn2(error * kp + totalError * ki);
@@ -264,6 +264,7 @@ void aimAtFlag(int whichFlag) { // 1 = mid flag, 2 = top flag
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void defaultUserControl() {
+  Controller.Screen.print("A");
   vex::task c(catapultControl);
   resetGyro();
   gyroTurn(90);
