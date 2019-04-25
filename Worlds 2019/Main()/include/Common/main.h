@@ -5,8 +5,6 @@
 
 using namespace vex;
 
-//////////////////////////// robot config /////////////////////////////
-
 vex::brain Brain;
 vex::controller Controller;
 vex::competition Competition = vex::competition();
@@ -25,6 +23,8 @@ vex::limit catapultLimit = vex::limit(Brain.ThreeWirePort.E);
 
 vex::gyro Gyro = vex::gyro(Brain.ThreeWirePort.H);
 
+//////////////////////////// robot config /////////////////////////////
+
 ///////////////////////////////////////////////////////////////////////
 
 bool firing = false;
@@ -35,12 +35,12 @@ int midTarget = 95; // 277 using mid //was 104
 int xTarget = 78;
 int xTarget2 = 157;
 
-/////////////////////////////////// user control helper methods
-///////////////////////////////////////////
+/////////////////////////////////// user control helper methods///////////////////////////////////////////
 
 void drive(double lpower, double rpower) {
   rpower *= 12.0 / 127;
   lpower *= 12.0 / 127;
+    
 
   right1.spin(vex::directionType::fwd, rpower, vex::voltageUnits::volt);
   right2.spin(vex::directionType::fwd, rpower, vex::voltageUnits::volt);
@@ -152,7 +152,7 @@ void turn(double speed) { drive(speed, -speed); }
 
 void turn2(double speed) { drive2(speed, -speed); }
 
-void brakeAll() {
+void setBraking() {
   left1.setStopping(vex::brakeType::brake);
   right1.setStopping(vex::brakeType::brake);
   left2.setStopping(vex::brakeType::brake);
@@ -161,28 +161,45 @@ void brakeAll() {
   right3.setStopping(vex::brakeType::brake);
 }
 
+void setHolding() {
+  left1.setStopping(vex::brakeType::hold);
+  right1.setStopping(vex::brakeType::hold);
+  left2.setStopping(vex::brakeType::hold);
+  right2.setStopping(vex::brakeType::hold);
+  left3.setStopping(vex::brakeType::hold);
+  right3.setStopping(vex::brakeType::hold);
+}
+
+void setCoasting() {
+    left1.setStopping(vex::brakeType::coast);
+  right1.setStopping(vex::brakeType::coast);
+  left2.setStopping(vex::brakeType::coast);
+  right2.setStopping(vex::brakeType::coast);
+  left3.setStopping(vex::brakeType::coast);
+  right3.setStopping(vex::brakeType::coast);
+}
+
 /////////////////////////////////////// gyroscope///////////////////////////////////////////////
 
 void gyroTurn(double target) {
-  target = Gyro.value(vex::analogUnits::range12bit) + target * 10 + target * 40 / 90;
+  target = Gyro.value(vex::analogUnits::range12bit) + target * 10 + target * 41 / 90;
   double error = target - Gyro.value(vex::analogUnits::range12bit);
   double totalError = 0;
 
-  double kp = 0.083;
-  double ki = 0.01;
+  double kp = 0.064;
+  double ki = 0.009;
 
-  while (std::abs(error) > 3) {
-    vex::task::sleep(10);
+  while (std::abs(error) > 2) {
+    vex::task::sleep(6);
     error = target - Gyro.value(vex::analogUnits::range12bit);
     totalError += error;
     if (std::abs(error) > 69) {
       totalError = 0;
     }
-    turn2(error * kp + totalError * ki);
-    
+    turn2(error * kp + totalError * ki);  
   }
-  brakeAll();
-  Controller.Screen.print(error);
+  setHolding();
+  stopAll();
 }
 
 void resetGyro() {
@@ -193,7 +210,7 @@ void resetGyro() {
 ///////////////////////////////////////// vision sensor
 //////////////////////////////////////////////////////
 
-void turnToFlag(double target) {
+/*void turnToFlag(double target) {
   int value = 0;
   int error = 10;
   int totalError = 0;
@@ -259,19 +276,17 @@ void aimAtFlag(int whichFlag) { // 1 = mid flag, 2 = top flag
   if (std::abs(xError) > 5 || std::abs(yError) > 5) {
     aimAtFlag(whichFlag);
   }
-}
+}*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void defaultUserControl() {
-  Controller.Screen.print("A");
+    setCoasting();
   vex::task c(catapultControl);
-  resetGyro();
-  gyroTurn(90);
   while (1) {
-   
     drive(Controller.Axis3.value(), Controller.Axis2.value());
     intakeControl();
     vex::task::sleep(10);
   }
 }
+
