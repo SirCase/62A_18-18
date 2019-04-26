@@ -281,7 +281,7 @@ void aimAtFlag(int whichFlag) { // 1 = mid flag, 2 = top flag
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void defaultUserControl() {
-    setCoasting();
+  setCoasting();
   vex::task c(catapultControl);
   while (1) {
     drive(Controller.Axis3.value(), Controller.Axis2.value());

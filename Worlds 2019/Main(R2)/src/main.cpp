@@ -14,29 +14,29 @@ void auton() {
 
   // drive back
   encoderDrive(1000, 50);
-    wait(50);
+  wait(50);
 
   intake.stop();
 
   // turn right
   gyroTurn(53);
-    wait(50);
+  wait(50);
 
-  //drive to flip cap
+  // drive to flip cap
   intake.spin(vex::directionType::rev, 100, vex::velocityUnits::pct);
   encoderDrive(-2200, 65);
-    wait(50);
-    
-  //drive forward to get in line with platform
-    encoderDrive(1069, 65);
-    wait(50);
-    
-    //turn left to face platform
-    gyroTurn(-147);
-    wait(50);
-    
-    timedDrive(1420, -95);
-    setHolding();
+  wait(50);
+
+  // drive forward to get in line with platform
+  encoderDrive(1069, 65);
+  wait(50);
+
+  // turn left to face platform
+  gyroTurn(-147);
+  wait(50);
+
+  timedDrive(1690, -90);
+  setHolding();
   stopAll();
 }
 
