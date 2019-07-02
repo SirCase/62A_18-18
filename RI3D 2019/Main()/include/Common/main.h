@@ -30,6 +30,7 @@ int intakeState = 0;
 bool pressing = false;
 */
 const int liftLimit = 1000;
+
 void drive(double lpower, double rpower) {
   rpower *= 12.0 / 127;
   lpower *= 12.0 / 127;
@@ -42,10 +43,10 @@ void drive(double lpower, double rpower) {
 }
 
 void liftControl(){
-   if (Controller.ButtonR1.pressing()) {
+   if (Controller.ButtonR1.pressing()&& leftLift.value() < liftLimit) {
     leftLift.spin(vex::directionType::fwd, 100, vex::velocityUnits::pct);
     rightLift.spin(vex::directionType::fwd, 100, vex::velocityUnits::pct);
-  } else if (Controller.ButtonR2.pressing() && motor()) {
+  } else if (Controller.ButtonR2.pressing() && leftLift.value() > 0) {
     leftLift.spin(vex::directionType::fwd, -100, vex::velocityUnits::pct);
     rightLift.spin(vex::directionType::fwd, -100, vex::velocityUnits::pct);
   } else {
