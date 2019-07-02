@@ -9,7 +9,7 @@ void auton() {
   intake.spin(vex::directionType::fwd, 100, vex::velocityUnits::pct);
 
   // drive to cap to pick up ball
-  encoderDrive(-2550, 69);
+  encoderDrive(-2420, 69);
   wait(800);
 
   // drive back
